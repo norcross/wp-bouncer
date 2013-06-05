@@ -16,16 +16,16 @@ Only allow one device to be logged into WordPress for each user.
 WP Bouncer will make sure users are logged in from only one device at a time. This should deter people from sharing their login credentials for your site, which is especially good for paid membership sites.
 
 WP Bouncer works by:
-* Storing the PHPSESSID for each user when they log in.
-* If a user is logged in, on each page load (init hook), WP Bouncer checks if the PHPSESSID stored in the user's cookies is the same as the last login on file.
+* Storing a random "FAKESESSID" for each user when they log in.
+* If a user is logged in, on each page load (init hook), WP Bouncer checks if the FAKESESSID stored in the user's cookies is the same as the last login stored in a transient (fakesessid_user_login).
 * If not, WP Bouncer logs the user out and redirects them to a warning message.
 
 For Example:
-* User A logs in as "user". Their PHPSESSID, say "SESSION_A" is stored in a WordPress option.
-* User B logs in as "user". Their PHPSESSID, say "SESSION_B" is overwrites the stored WordPress option.
+* User A logs in as "user". Their FAKESESSID, say "SESSION_A" is stored in a WordPress option.
+* User B logs in as "user". Their FAKESESSID, say "SESSION_B" is overwrites the stored WordPress option.
 * User A tries to load a page on your site, WP Bouncer catches them and logs them out, redirecting them to the warning message.
 * User B can browse around the site as normal... unless...
-* User A logs in again as "user". Their PHPSESSID, SESSION_A_v2 is stored in the WordPress option.
+* User A logs in again as "user". Their FAKESESSID, SESSION_A_v2 is stored in the WordPress option.
 * Now user B would be logged out if they load another page.
 
 Improvements:
