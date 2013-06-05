@@ -140,7 +140,7 @@ class WP_Bouncer
 	public function flag_redirect() {
 
 		$base = plugin_dir_url( __FILE__ );
-		wp_redirect( esc_url_raw( $base.'/login-warning.php' ), 302 );
+		wp_redirect( esc_url_raw( $base.'login-warning.php' ), 302 );
 		exit();
 
 	}
@@ -156,14 +156,12 @@ class WP_Bouncer
 		if(is_user_logged_in())
 		{	
 			global $current_user;
-			
-			$current	= get_option('wpbouncer_login_data');			
-			
-			//entry?
-			if(!empty($current[$current_user->user_login]) && !empty($_COOKIE['PHPSESSID']))
-			{
-				//check PHPSESSID
-				if($_COOKIE['PHPSESSID'] != $current[$current_user->user_login]['PHPSESSID'])
+						
+			//check the fakesessid
+			$fakesessid = get_transient("fakesessid_" . $current_user->login);						
+			if(!empty($fakesessid))
+			{			
+				if(empty($_COOKIE['fakesessid']) || $fakesessid != $_COOKIE['fakesessid'])
 				{
 					//log user out
 					wp_logout();
@@ -194,24 +192,11 @@ class WP_Bouncer
 
 		// get browser data from current login
 		$browser	= $this->browser_data();
-		
-		$current	= get_option('wpbouncer_login_data');
-		$user		= $_POST['log'];
-		
-		$updates	= array();
-		$updates[$user]['log-time']		= time();
-		$updates[$user]['log-ip']		= $_SERVER['REMOTE_ADDR'];
-		$updates[$user]['log-browser']	= $browser['name'];
-		$updates[$user]['log-platform']	= $browser['platform'];
-		$updates[$user]['PHPSESSID'] = $_COOKIE['PHPSESSID'];		
-		
-		if (!empty($current)) {
-			$data = array_merge($current, $updates);
-		} else {
-			$data = $updates;
-		}
-		
-		update_option('wpbouncer_login_data', $data);
+				
+		//store a "fake" session id in transient and cookie
+		$fakesessid = md5($browser['name'] . $broser['platform'] . $_SERVER['REMOVE_ADDR'] . time());
+		set_transient("fakesessid_" . $current_user->user_login, $fakesessid, 3600*24*30);
+		setcookie("fakesessid", $fakesessid, time()+3600*24*30, COOKIEPATH, COOKIE_DOMAIN, false);				
 	}
 
 	/**
