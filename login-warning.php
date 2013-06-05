@@ -15,7 +15,7 @@
 <body>
 	<div id="wrapper">
 	<h1>Login Warning</h1>
-	<p>There was an issue with your log in. You have already logged in recently from a different location.</p>
+	<p>There was an issue with your log in. Your user account has logged in recently from a different location.</p>
 	</div>
 </body>
 </html>

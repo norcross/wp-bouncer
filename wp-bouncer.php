@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name: WP Bouncer
-Plugin URI: http://andrewnorcross.com/plugins/
-Description: Creates an admin page for storing multiple API keys.
+Plugin URI: http://andrewnorcross.com/plugins/wp-bouncer/
+Description: Only allow one device to be logged into WordPress for each user.
 Version: 1.0
-Author: Andrew Norcross
+Author: Andrew Norcross, strangerstudios
 Author URI: http://andrewnorcross.com
 
-    Copyright 2012 Andrew Norcross
+    Copyright 2012 Andrew Norcross, Stranger Studios
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as
@@ -34,9 +34,10 @@ class WP_Bouncer
 	 */
 	public function __construct() {
 
-		add_action		( 'login_init', 				array( $this, 'login_track'				) 			);
+		add_action('wp_login', array($this, 'login_track'));
+		add_action('init', array($this, 'login_flag'));
 	}
-
+	
 	/**
 	 * helper function to get browser data at login
 	 *
@@ -129,7 +130,7 @@ class WP_Bouncer
 	        'pattern'	=> $pattern
 	    );
 	}
-
+	
 	/**
 	 * redirect function for flagged logins
 	 *
@@ -150,25 +151,28 @@ class WP_Bouncer
 	 * @return WP_Bouncer
 	 */
 
-	public function login_flag($user, $current, $browser) {
+	public function login_flag() {
 
-		// get last login data of current user
-		$attempt		= $current[$user];
-		$login_time		= $attempt['log-time'];
-		$login_ip		= $attempt['log-ip'];
-		$login_browser	= $attempt['log-browser'];
-		$login_platform	= $attempt['log-platform'];
-
-		// current variables
-		$curr_time		= time();
-		$curr_ip		= $_SERVER['REMOTE_ADDR'];
-		$curr_browser	= $browser['name'];
-		$curr_platform	= $browser['platform'];
-/*
-		if ( ($curr_time - $login_time) < 180 )
-			$this->flag_redirect();
-*/
-
+		if(is_user_logged_in())
+		{	
+			global $current_user;
+			
+			$current	= get_option('wpbouncer_login_data');			
+			
+			//entry?
+			if(!empty($current[$current_user->user_login]) && !empty($_COOKIE['PHPSESSID']))
+			{
+				//check PHPSESSID
+				if($_COOKIE['PHPSESSID'] != $current[$current_user->user_login]['PHPSESSID'])
+				{
+					//log user out
+					wp_logout();
+					
+					//redirect
+					$this->flag_redirect();
+				}
+			}
+		}
 	}
 
 	/**
@@ -178,7 +182,7 @@ class WP_Bouncer
 	 */
 
 	public function login_track() {
-
+		
 		if ( !isset( $_POST ) )
 			return;
 
@@ -190,34 +194,24 @@ class WP_Bouncer
 
 		// get browser data from current login
 		$browser	= $this->browser_data();
-
-		$current	= get_option('login_data_test');
-
+		
+		$current	= get_option('wpbouncer_login_data');
 		$user		= $_POST['log'];
-
-		// user is in the array. go to the checks
-		if (!empty($current) && array_key_exists($user, $current)) {
-
-			$this->login_flag($user, $current, $browser);
-
-		}
-
+		
 		$updates	= array();
-
-
 		$updates[$user]['log-time']		= time();
 		$updates[$user]['log-ip']		= $_SERVER['REMOTE_ADDR'];
 		$updates[$user]['log-browser']	= $browser['name'];
 		$updates[$user]['log-platform']	= $browser['platform'];
-
+		$updates[$user]['PHPSESSID'] = $_COOKIE['PHPSESSID'];		
+		
 		if (!empty($current)) {
 			$data = array_merge($current, $updates);
 		} else {
 			$data = $updates;
 		}
-
-		update_option('login_data_test', $data);
-
+		
+		update_option('wpbouncer_login_data', $data);
 	}
 
 	/**
@@ -229,7 +223,7 @@ class WP_Bouncer
 
 	public function textdomain() {
 
-		load_plugin_textdomain( 'lgcontrol', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		load_plugin_textdomain( 'wp-bouncer', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
 

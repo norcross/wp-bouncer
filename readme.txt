@@ -1,47 +1,54 @@
 === WP Bouncer ===
 Contributors: norcross
-Website Link: http://andrewnorcross.com/plugins/api-key-manager/
+Website Link: http://andrewnorcross.com/plugins/wp-bouncer/
 Donate link: https://andrewnorcross.com/donate
-Tags: api keys, secret keys
+Tags: login, security, member, members, membership, memberships, susbcription, subscriptions
 Requires at least: 3.0
 Tested up to: 3.5
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Login stuff
+Only allow one device to be logged into WordPress for each user.
 
 == Description ==
 
-Login stuff
+WP Bouncer will make sure users are logged in from only one device at a time. This should deter people from sharing their login credentials for your site, which is especially good for paid membership sites.
 
-Features:
+WP Bouncer works by:
+* Storing the PHPSESSID for each user when they log in.
+* If a user is logged in, on each page load (init hook), WP Bouncer checks if the PHPSESSID stored in the user's cookies is the same as the last login on file.
+* If not, WP Bouncer logs the user out and redirects them to a warning message.
 
-*   Something
-*   Something
+For Example:
+* User A logs in as "user". Their PHPSESSID, say "SESSION_A" is stored in a WordPress option.
+* User B logs in as "user". Their PHPSESSID, say "SESSION_B" is overwrites the stored WordPress option.
+* User A tries to load a page on your site, WP Bouncer catches them and logs them out, redirecting them to the warning message.
+* User B can browse around the site as normal... unless...
+* User A logs in again as "user". Their PHPSESSID, SESSION_A_v2 is stored in the WordPress option.
+* Now user B would be logged out if they load another page.
 
+Improvements:
+* Settings page to choose where users are taken after being bounced.
+* Keep track of how many bounces there are and lock the account down if there are so many in a small time frame.
 
 == Installation ==
 
 This section describes how to install the plugin and get it working.
 
-1. Upload `api-key-manager` to the `/wp-content/plugins/` directory.
+1. Upload `wp-bouncer` to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Navigate to the "API Key Manager" option in the Settings Menu.
-4. Store your API keys
+3. That's it! There are no settings for this plugin.
 
 == Frequently Asked Questions ==
-
 
 = What's this all about? =
 
 Something
 
-
 == Screenshots ==
 
 1. Something
-
 
 
 == Changelog ==
