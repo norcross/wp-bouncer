@@ -26,6 +26,12 @@ Author URI: http://andrewnorcross.com
 // Start up the engine
 class WP_Bouncer
 {
+	/*
+		Settings. These are set in constructor for now.	
+		We will eventually replace these via a settings page in the dashboard.
+	*/
+	public $redirect;
+
 
 	/**
 	 * This is our constructor
@@ -36,6 +42,8 @@ class WP_Bouncer
 
 		add_action('wp_login', array($this, 'login_track'));
 		add_action('init', array($this, 'login_flag'));
+		
+		$this->redirect = esc_url_raw( plugin_dir_url( __FILE__ ) . 'login-warning.php' );
 	}
 	
 	/**
@@ -140,7 +148,7 @@ class WP_Bouncer
 	public function flag_redirect() {
 
 		$base = plugin_dir_url( __FILE__ );
-		wp_redirect( esc_url_raw( $base.'login-warning.php' ), 302 );
+		wp_redirect( $this->redirect );
 		exit();
 
 	}
@@ -158,7 +166,11 @@ class WP_Bouncer
 			global $current_user;
 						
 			//check the fakesessid
-			$fakesessid = get_transient("fakesessid_" . $current_user->login);						
+			$fakesessid = get_transient("fakesessid_" . $current_user->user_login);		
+			
+			//krumo("fakesessid_" . $current_user->user_login);
+			//krumo($fakesessid);
+			
 			if(!empty($fakesessid))
 			{			
 				if(empty($_COOKIE['fakesessid']) || $fakesessid != $_COOKIE['fakesessid'])
@@ -179,24 +191,14 @@ class WP_Bouncer
 	 * @return WP_Bouncer
 	 */
 
-	public function login_track() {
-		
-		if ( !isset( $_POST ) )
-			return;
-
-		if ( !isset( $_POST['wp-submit'] ) )
-			return;
-
-		if ( $_POST['wp-submit'] !== 'Log In'  )
-			return;
-
+	public function login_track($user_login) {		
 		// get browser data from current login
 		$browser	= $this->browser_data();
 				
 		//store a "fake" session id in transient and cookie
 		$fakesessid = md5($browser['name'] . $broser['platform'] . $_SERVER['REMOVE_ADDR'] . time());
-		set_transient("fakesessid_" . $current_user->user_login, $fakesessid, 3600*24*30);
-		setcookie("fakesessid", $fakesessid, time()+3600*24*30, COOKIEPATH, COOKIE_DOMAIN, false);				
+		set_transient("fakesessid_" . $user_login, $fakesessid, 3600*24*30);
+		setcookie("fakesessid", $fakesessid, time()+3600*24*30, COOKIEPATH, COOKIE_DOMAIN, false);	
 	}
 
 	/**
