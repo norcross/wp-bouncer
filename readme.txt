@@ -5,7 +5,7 @@ Donate link: https://andrewnorcross.com/donate
 Tags: login, security, member, members, membership, memberships, susbcription, subscriptions
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 1.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,11 @@ Something
 
 
 == Changelog ==
+
+= 1.0.1 =
+* Fixed bug with how transients were being set and get.
+* Removed code in track_login that made sure you were logging in from login page. This will allow wp bouncer to kick in when logging in via wp_signon, etc.
+* Moved redirect url to a class property. Will eventually add a settings page for this and any other setting/configuration value.
 
 = 1.0 =
 * First release!
