@@ -1,5 +1,5 @@
 === WP Bouncer ===
-Contributors: norcross
+Contributors: strangerstudios, norcross
 Website Link: http://andrewnorcross.com/plugins/wp-bouncer/
 Donate link: https://andrewnorcross.com/donate
 Tags: login, security, member, members, membership, memberships, susbcription, subscriptions
