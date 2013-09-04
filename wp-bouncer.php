@@ -3,7 +3,7 @@
 Plugin Name: WP Bouncer
 Plugin URI: http://andrewnorcross.com/plugins/wp-bouncer/
 Description: Only allow one device to be logged into WordPress for each user.
-Version: 1.0
+Version: 1.1
 Author: Andrew Norcross, strangerstudios
 Author URI: http://andrewnorcross.com
 
@@ -164,7 +164,11 @@ class WP_Bouncer
 		if(is_user_logged_in())
 		{	
 			global $current_user;
-						
+			
+			//ignore admins
+			if(current_user_can("manage_options"))
+				return;
+			
 			//check the fakesessid
 			$fakesessid = get_transient("fakesessid_" . $current_user->user_login);		
 			

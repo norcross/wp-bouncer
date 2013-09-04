@@ -1,11 +1,10 @@
 === WP Bouncer ===
 Contributors: strangerstudios, norcross
-Website Link: http://andrewnorcross.com/plugins/wp-bouncer/
-Donate link: https://andrewnorcross.com/donate
+Website Link: http://www.paidmembershipspro.com/add-ons/plugins-on-github/wp-bouncer/
 Tags: login, security, member, members, membership, memberships, susbcription, subscriptions
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 1.0.1
+Stable tag: 1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,6 +31,9 @@ Improvements:
 * Settings page to choose where users are taken after being bounced.
 * Keep track of how many bounces there are and lock the account down if there are so many in a small time frame.
 
+= Support the Plugin Authors =
+If you like this, checkout Jason's work with Paid Memberships Pro (http://www.paidmembershipspro.com) and Andrew's work at Reaktiv Studios (http://reaktivstudios.com/).
+
 == Installation ==
 
 This section describes how to install the plugin and get it working.
@@ -42,16 +44,12 @@ This section describes how to install the plugin and get it working.
 
 == Frequently Asked Questions ==
 
-= What's this all about? =
-
-Something
-
-== Screenshots ==
-
-1. Something
-
+None yet.
 
 == Changelog ==
+= 1.1 =
+* Admin accounts (specifically users with "manage_options" capability) are excluded from bounces. This will eventually be a setting once we setup a settings page.
+* Readme changes.
 
 = 1.0.1 =
 * Fixed bug with how transients were being set and get.
@@ -61,8 +59,7 @@ Something
 = 1.0 =
 * First release!
 
-
 == Upgrade Notice ==
 
-= 1.0 =
-* First release!
+= 1.1 =
+* Admin accounts (specifically users with "manage_options" capability) are excluded from bounces. This will eventually be a setting once we setup a settings page.
