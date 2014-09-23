@@ -3,8 +3,8 @@ Contributors: strangerstudios, norcross
 Website Link: http://www.paidmembershipspro.com/add-ons/plugins-on-github/wp-bouncer/
 Tags: login, security, member, members, membership, memberships, susbcription, subscriptions
 Requires at least: 3.0
-Tested up to: 3.5
-Stable tag: 1.1
+Tested up to: 4.0
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,14 @@ This section describes how to install the plugin and get it working.
 None yet.
 
 == Changelog ==
+= 1.2 =
+* Fixed some typos in the variables used to generate the session ids.
+* The fakesessid_{user_login} transients are now storing arrays of session ids. This allowed for multiple (but limited) sessions per user if wanted.
+* Added wp_bouncer_ignore_admins filter, if returning false even admins will be bounced.
+* Added wp_bouncer_redirect_url filter, which can be used to change the URL redirected to after being bounced.
+* Added wp_bouncer_number_simultaneous_logins filter, which can be set to limit logins to a number other than 1. 0 means unlimited logins.
+* Added wp_bouncer_login_flag in case you want to hook in and do something right before bouncing (or potentially stop the bouncing).
+
 = 1.1 =
 * Admin accounts (specifically users with "manage_options" capability) are excluded from bounces. This will eventually be a setting once we setup a settings page.
 * Readme changes.

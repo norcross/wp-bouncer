@@ -3,7 +3,7 @@
 Plugin Name: WP Bouncer
 Plugin URI: http://andrewnorcross.com/plugins/wp-bouncer/
 Description: Only allow one device to be logged into WordPress for each user.
-Version: 1.1
+Version: 1.2
 Author: Andrew Norcross, strangerstudios
 Author URI: http://andrewnorcross.com
 
@@ -43,7 +43,7 @@ class WP_Bouncer
 		add_action('wp_login', array($this, 'login_track'));
 		add_action('init', array($this, 'login_flag'));
 		
-		$this->redirect = esc_url_raw( plugin_dir_url( __FILE__ ) . 'login-warning.php' );
+		$this->redirect = apply_filters('wp_bouncer_redirect_url', esc_url_raw( plugin_dir_url( __FILE__ ) . 'login-warning.php' ));
 	}
 	
 	/**
@@ -146,8 +146,7 @@ class WP_Bouncer
 	 */
 
 	public function flag_redirect() {
-
-		$base = plugin_dir_url( __FILE__ );
+		
 		wp_redirect( $this->redirect );
 		exit();
 
@@ -166,24 +165,48 @@ class WP_Bouncer
 			global $current_user;
 			
 			//ignore admins
-			if(current_user_can("manage_options"))
+			if(apply_filters('wp_bouncer_ignore_admins', true) && current_user_can("manage_options"))
 				return;
 			
-			//check the fakesessid
-			$fakesessid = get_transient("fakesessid_" . $current_user->user_login);		
+			//check the session ids
+			$session_ids = get_transient("fakesessid_" . $current_user->user_login);
+						
+			//make sure it's an array
+			if(!is_array($session_ids))
+				$session_ids = array($session_ids);
+
+			//how many logins are allowed
+			$num_allowed = apply_filters('wp_bouncer_number_simultaneous_logins', 1);
 			
-			//krumo("fakesessid_" . $current_user->user_login);
-			//krumo($fakesessid);
-			
-			if(!empty($fakesessid))
+			//0 means do nothing
+			if(empty($num_allowed))
+				return;
+						
+			//if we have more than the num allowed, remove some from the top
+			while(count($session_ids) > $num_allowed)
+			{
+				unset($session_ids[0]);	//remove oldest id
+				$session_ids = array_values($session_ids);	//fix array keys
+			}
+						
+			//save session ids in case we trimmed them
+			set_transient("fakesessid_" . $current_user->user_login, $session_ids, 3600*24*30);
+						
+			if(!empty($session_ids))
 			{			
-				if(empty($_COOKIE['fakesessid']) || $fakesessid != $_COOKIE['fakesessid'])
+				if(empty($_COOKIE['fakesessid']) || !in_array($_COOKIE['fakesessid'], $session_ids))
 				{
-					//log user out
-					wp_logout();
+					//hook in case we want to do something different
+					$logout = apply_filters('wp_bouncer_login_flag', true, $session_ids);
 					
-					//redirect
-					$this->flag_redirect();
+					if($logout)
+					{					
+						//log user out
+						wp_logout();
+						
+						//redirect
+						$this->flag_redirect();
+					}
 				}
 			}
 		}
@@ -199,10 +222,18 @@ class WP_Bouncer
 		// get browser data from current login
 		$browser	= $this->browser_data();
 				
-		//store a "fake" session id in transient and cookie
-		$fakesessid = md5($browser['name'] . $browser['platform'] . $_SERVER['REMOTE_ADDR'] . time());
-		set_transient("fakesessid_" . $user_login, $fakesessid, 3600*24*30);
-		setcookie("fakesessid", $fakesessid, time()+3600*24*30, COOKIEPATH, COOKIE_DOMAIN, false);	
+		//generate a new session id
+		$new_session_id = md5($browser['name'] . $browser['platform'] . $_SERVER['REMOTE_ADDR'] . time());
+		
+		//save it in a list in a transient
+		$session_ids = get_transient("fakesessid_" . $user_login);
+		if(!is_array($session_ids))
+			$session_ids = array($session_ids);
+		$session_ids[] = $new_session_id;			
+		set_transient("fakesessid_" . $user_login, $session_ids, 3600*24*30);		
+		
+		//and save it in a cookie		
+		setcookie("fakesessid", $new_session_id, time()+3600*24*30, COOKIEPATH, COOKIE_DOMAIN, false);	
 	}
 
 	/**
