@@ -196,7 +196,7 @@ class WP_Bouncer
 		$browser	= $this->browser_data();
 				
 		//store a "fake" session id in transient and cookie
-		$fakesessid = md5($browser['name'] . $broser['platform'] . $_SERVER['REMOVE_ADDR'] . time());
+		$fakesessid = md5($browser['name'] . $browser['platform'] . $_SERVER['REMOTE_ADDR'] . time());
 		set_transient("fakesessid_" . $user_login, $fakesessid, 3600*24*30);
 		setcookie("fakesessid", $fakesessid, time()+3600*24*30, COOKIEPATH, COOKIE_DOMAIN, false);	
 	}
