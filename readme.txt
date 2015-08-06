@@ -3,8 +3,8 @@ Contributors: strangerstudios, norcross
 Website Link: http://www.paidmembershipspro.com/add-ons/plugins-on-github/wp-bouncer/
 Tags: login, security, member, members, membership, memberships, susbcription, subscriptions
 Requires at least: 3.0
-Tested up to: 4.0
-Stable tag: 1.2
+Tested up to: 4.2.2
+Stable tag: 1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,11 @@ This section describes how to install the plugin and get it working.
 None yet.
 
 == Changelog ==
+= 1.3 =
+* Added a user action link (hover over a user on the users.php page in the dashboard) to reset all sessions for a user.
+* Added wp_bouncer_session_ids hook to filter session ids when saving them. Passes $session_ids, $old_session_ids (before any were removed/bounced), and the current user's ID as parameters.
+* Added wp_bouncer_session_length hook to filter how long the session ids transients are set. This way, you can time the transients to expire at a specific time of day. Note that the transient is saved on every page load, so if you set it to 5 minutes, it's going to push it out 5 minutes on every page load. You should try to set it to (the number of seconds until midnight) or something like that.
+
 = 1.2 =
 * Fixed some typos in the variables used to generate the session ids.
 * The fakesessid_{user_login} transients are now storing arrays of session ids. This allowed for multiple (but limited) sessions per user if wanted.

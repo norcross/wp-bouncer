@@ -3,7 +3,7 @@
 Plugin Name: WP Bouncer
 Plugin URI: http://andrewnorcross.com/plugins/wp-bouncer/
 Description: Only allow one device to be logged into WordPress for each user.
-Version: 1.2
+Version: 1.3
 Author: Andrew Norcross, strangerstudios
 Author URI: http://andrewnorcross.com
 
@@ -40,8 +40,18 @@ class WP_Bouncer
 	 */
 	public function __construct() {
 
+		//track logins
 		add_action('wp_login', array($this, 'login_track'));
+		
+		//bounce logins
 		add_action('init', array($this, 'login_flag'));
+			
+		//add action links to reset sessions
+		add_filter('user_row_actions', array($this, 'user_row_actions'), 10, 2);				
+		
+		//add check for resetting sessions
+		add_action('admin_init', array($this, 'reset_session'));
+		add_action('admin_notices', array($this, 'admin_notices'));
 		
 		$this->redirect = apply_filters('wp_bouncer_redirect_url', esc_url_raw( plugin_dir_url( __FILE__ ) . 'login-warning.php' ));
 	}
@@ -59,7 +69,8 @@ class WP_Bouncer
 	    $bname		= 'Unknown';
 	    $platform	= 'Unknown';
 	    $version	= '';
-
+		$up			= '';
+		
 	    // determine platform
 	    if (preg_match('/linux/i', $u_agent))
 	        $platform = 'linux';
@@ -169,10 +180,13 @@ class WP_Bouncer
 				return;
 			
 			//check the session ids
-			$session_ids = get_transient("fakesessid_" . $current_user->user_login);
+			$session_ids = get_transient("fakesessid_" . $current_user->user_login);			
+			$old_session_ids = $session_ids;
 						
 			//make sure it's an array
-			if(!is_array($session_ids))
+			if(empty($session_ids))
+				$session_ids = array();
+			elseif(!is_array($session_ids))
 				$session_ids = array($session_ids);
 
 			//how many logins are allowed
@@ -184,13 +198,16 @@ class WP_Bouncer
 						
 			//if we have more than the num allowed, remove some from the top
 			while(count($session_ids) > $num_allowed)
-			{
+			{				
 				unset($session_ids[0]);	//remove oldest id
-				$session_ids = array_values($session_ids);	//fix array keys
+				$session_ids = array_values($session_ids);	//fix array keys								
 			}
+			
+			//filter since 1.3
+			$session_ids = apply_filters('wp_bouncer_session_ids', $session_ids, $old_session_ids, $current_user->ID);
 						
 			//save session ids in case we trimmed them
-			set_transient("fakesessid_" . $current_user->user_login, $session_ids, 3600*24*30);
+			set_transient("fakesessid_" . $current_user->user_login, $session_ids, apply_filters('wp_bouncer_session_length', 3600*24*30, $current_user->ID));
 						
 			if(!empty($session_ids))
 			{			
@@ -226,10 +243,15 @@ class WP_Bouncer
 		$new_session_id = md5($browser['name'] . $browser['platform'] . $_SERVER['REMOTE_ADDR'] . time());
 		
 		//save it in a list in a transient
-		$session_ids = get_transient("fakesessid_" . $user_login);
-		if(!is_array($session_ids))
+		$session_ids = get_transient("fakesessid_" . $user_login, false);
+				
+		if(empty($session_ids))
+			$session_ids = array();
+		elseif(!is_array($session_ids))
 			$session_ids = array($session_ids);
+				
 		$session_ids[] = $new_session_id;			
+				
 		set_transient("fakesessid_" . $user_login, $session_ids, 3600*24*30);		
 		
 		//and save it in a cookie		
@@ -242,13 +264,88 @@ class WP_Bouncer
 	 * @return WP_Bouncer
 	 */
 
-
 	public function textdomain() {
 
 		load_plugin_textdomain( 'wp-bouncer', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
-
+	/**
+	 * Add link to the user action links to reset sessions
+	 *
+	 * Use the wp_bouncer_reset_sessions_cap to change the capability required to see this.
+	 */	
+	public function user_row_actions($actions, $user) {	
+		$cap = apply_filters('wp_bouncer_reset_sessions_cap', 'edit_users');
+		if(current_user_can($cap))
+		{
+			$url = admin_url("users.php?wpbreset=" . $user->ID);
+			if(!empty($_REQUEST['s']))
+				$url .= "&s=" . esc_attr($_REQUEST['s']);
+			if(!empty($_REQUEST['paged']))
+				$url .= "&paged=" . intval($_REQUEST['paged']);
+			$url = wp_nonce_url($url, 'wpbreset_' . $user->ID);
+			$actions[] = '<a href="' . $url . '">Reset Sessions</a>';
+		}
+		
+		return $actions;
+	}
+	
+	/**
+	 * Reset sessions. Runs on admin init. Checks for wpbreset and nonce and resets sessions for that user.
+	 *	 
+	 */	
+	public function reset_session()
+	{
+		if(!empty($_REQUEST['wpbreset']))
+		{
+			global $wpb_msg, $wpb_msgt;
+			
+			//get user id
+			$user_id = intval($_REQUEST['wpbreset']);
+			$user = get_userdata($user_id);
+						
+			//no user?
+			if(empty($user))
+			{
+				//user not found error
+				$wpb_msg = 'Could not reset sessions. User not found.';
+				$wpb_msgt = 'error';
+			}			
+			else
+			{				
+				//check nonce
+				check_admin_referer( 'wpbreset_'.$user_id);
+				
+				//check caps
+				$cap = apply_filters('wp_bouncer_reset_sessions_cap', 'edit_users');
+				if(!current_user_can($cap))
+				{
+					//show error message
+					$wpb_msg = 'You do not have permission to reset user sessions.';
+					$wpb_msgt = 'error';
+				}
+				else
+				{
+					//all good, delete this user's sessions
+					delete_transient('fakesessid_'. $user->user_login);				
+					
+					//show success message
+					$wpb_msg = 'Sessions reset for ' . $user->user_login . '.';
+					$wpb_msgt = 'updated';
+				}
+			}						
+		}
+	}
+	
+	/**
+	 * Show any messages generated by WP Bouncer.
+	 */	
+	public function admin_notices() {
+		global $wpb_msg, $wpb_msgt;
+		if(!empty($wpb_msg))
+			echo "<div class=\"$wpb_msgt\"><p>$wpb_msg</p></div>"; 
+	}	
+	
 /// end class
 }
 
