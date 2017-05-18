@@ -3,7 +3,7 @@ Contributors: strangerstudios, norcross
 Website Link: http://www.paidmembershipspro.com/add-ons/plugins-on-github/wp-bouncer/
 Tags: login, security, member, members, membership, memberships, susbcription, subscriptions
 Requires at least: 3.0
-Tested up to: 4.2.2
+Tested up to: 4.7.5
 Stable tag: 1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
