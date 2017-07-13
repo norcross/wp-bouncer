@@ -69,7 +69,7 @@ class WP_Bouncer
 	    $bname		= 'Unknown';
 	    $platform	= 'Unknown';
 	    $version	= '';
-		$up			= '';
+	    $ub			= '';
 		
 	    // determine platform
 	    if (preg_match('/linux/i', $u_agent))
