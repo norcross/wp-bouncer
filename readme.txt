@@ -3,8 +3,8 @@ Contributors: strangerstudios, norcross
 Website Link: http://www.paidmembershipspro.com/add-ons/plugins-on-github/wp-bouncer/
 Tags: login, security, member, members, membership, memberships, susbcription, subscriptions
 Requires at least: 3.0
-Tested up to: 4.7.5
-Stable tag: 1.3
+Tested up to: 4.8
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,9 +44,15 @@ This section describes how to install the plugin and get it working.
 
 == Frequently Asked Questions ==
 
-None yet.
+= I need something strong to keep people from sharing accounts. =
+We've found that using a 2-Factor-Authentication scheme on your site is a good way to keep people from sharing
+accounts. When we tried to design an advanced version of WP-Boucner, it was basically 2FA. So try that.
 
 == Changelog ==
+= 1.3.1 =
+* Fixed a typo.
+* Tested up to WP 4.8
+
 = 1.3 =
 * Added a user action link (hover over a user on the users.php page in the dashboard) to reset all sessions for a user.
 * Added wp_bouncer_session_ids hook to filter session ids when saving them. Passes $session_ids, $old_session_ids (before any were removed/bounced), and the current user's ID as parameters.
