@@ -243,7 +243,7 @@ class WP_Bouncer
 		$new_session_id = md5($browser['name'] . $browser['platform'] . $_SERVER['REMOTE_ADDR'] . time());
 		
 		//save it in a list in a transient
-		$session_ids = get_transient("fakesessid_" . $user_login, false);
+		$session_ids = get_transient("fakesessid_" . $user_login);
 				
 		if(empty($session_ids))
 			$session_ids = array();
