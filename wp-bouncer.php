@@ -53,7 +53,11 @@ class WP_Bouncer
 		add_action('admin_init', array($this, 'reset_session'));
 		add_action('admin_notices', array($this, 'admin_notices'));
 		
-		$this->redirect = apply_filters('wp_bouncer_redirect_url', esc_url_raw( plugin_dir_url( __FILE__ ) . 'login-warning.php' ));
+		function set_wp_bouncer_redirect_url() {
+		    $redirect_url = apply_filters('wp_bouncer_redirect_url', esc_url_raw( plugin_dir_url( __FILE__ ) . 'login-warning.php' ));
+		    echo $redirect_url;
+		}
+		add_action('after_setup_theme', 'set_wp_bouncer_redirect_url');
 	}
 	
 	/**
@@ -158,7 +162,7 @@ class WP_Bouncer
 
 	public function flag_redirect() {
 		
-		wp_redirect( $this->redirect );
+		wp_redirect( $redirect_url );
 		exit();
 
 	}
