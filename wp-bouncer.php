@@ -55,7 +55,6 @@ class WP_Bouncer
 		
 		function set_wp_bouncer_redirect_url() {
 		    $redirect_url = apply_filters('wp_bouncer_redirect_url', esc_url_raw( plugin_dir_url( __FILE__ ) . 'login-warning.php' ));
-		    echo $redirect_url;
 		}
 		add_action('after_setup_theme', 'set_wp_bouncer_redirect_url');
 	}
