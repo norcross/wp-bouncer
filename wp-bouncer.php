@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: WP Bouncer
-Plugin URI: http://andrewnorcross.com/plugins/wp-bouncer/
+Plugin URI: https://www.paidmembershipspro.com/add-ons/wp-bouncer/
 Description: Only allow one device to be logged into WordPress for each user.
 Version: 1.3.1
-Author: Andrew Norcross, strangerstudios
-Author URI: http://andrewnorcross.com
+Author: strangerstudios, Andrew Norcross
+Author URI: https://www.paidmembershipspro.com
 
     Copyright 2012 Andrew Norcross, Stranger Studios
 
@@ -315,7 +315,11 @@ class WP_Bouncer {
 		global $wpb_msg, $wpb_msgt;
 		if(!empty($wpb_msg))
 			echo "<div class=\"$wpb_msgt\"><p>$wpb_msg</p></div>"; 
-	}	
+	}
+	
+	/**
+	 * 
+	 */
 	
 /// end class
 }
