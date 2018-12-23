@@ -47,7 +47,7 @@ class WP_Bouncer {
 	}
 	
 	/**
-	 * Make sure to set the redirect url after theme is setup
+	 * Get the URL to redirect dupe logins to
 	 */
 	public function get_redirect_url() {
 		return apply_filters('wp_bouncer_redirect_url', esc_url_raw( plugin_dir_url( __FILE__ ) . 'login-warning.php' ));
