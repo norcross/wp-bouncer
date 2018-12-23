@@ -23,6 +23,8 @@ Author URI: https://www.paidmembershipspro.com
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+define( 'WP_BOUCNER_VERSION', '1.3.1' );
+
 // Start up the engine
 class WP_Bouncer {
 	/**
@@ -32,17 +34,42 @@ class WP_Bouncer {
 	 */
 	public function __construct() {
 		//track logins
-		add_action('wp_login', array($this, 'login_track'));
+		add_action( 'wp_login', array( $this, 'login_track' ) );
 		
 		//bounce logins
-		add_action('init', array($this, 'login_flag'));
+		add_action( 'init', array( $this, 'login_flag' ) );
 			
 		//add action links to reset sessions
-		add_filter('user_row_actions', array($this, 'user_row_actions'), 10, 2);				
+		add_filter( 'user_row_actions', array($this, 'user_row_actions' ), 10, 2 );
 		
 		//add check for resetting sessions
-		add_action('admin_init', array($this, 'reset_session'));
-		add_action('admin_notices', array($this, 'admin_notices'));
+		add_action( 'admin_init', array( $this, 'reset_session' ) );
+		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+		
+		//JS checks
+		add_action( 'wp_ajax_wp_bouncer_check', array( $this, 'ajax_check' ) );
+		add_action( 'wp_ajax_nopriv_wp_bouncer_check', array( $this, 'ajax_check' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
+	}
+	
+	public function wp_enqueue_scripts() {
+		// Check for WP_BOUNCER_HEARTBEAT_CHECK constant first
+		if ( defined( 'WP_BOUNCER_HEARTBEAT_CHECK' ) 
+			&& WP_BOUNCER_HEARTBEAT_CHECK == true 
+			&& is_user_logged_in() ) {
+			wp_enqueue_script(
+				'wp_bouncer', 
+				plugins_url( 'js/wp-bouncer.js', __FILE__ ),
+				array( 'jquery' ),
+				WP_BOUCNER_VERSION
+			);
+			wp_localize_script(
+				'wp_bouncer',
+				'wp_bouncer',
+				array('ajax_url' => admin_url( 'admin-ajax.php' ) )
+			);
+		}
 	}
 	
 	/**
@@ -159,13 +186,13 @@ class WP_Bouncer {
 	 *
 	 * @return WP_Bouncer
 	 */
-	public function login_flag() {
+	public function login_flag( $redirect = true ) {
 		if(is_user_logged_in()) {	
 			global $current_user;
 			
 			//ignore admins
 			if(apply_filters('wp_bouncer_ignore_admins', true) && current_user_can("manage_options"))
-				return;
+				return false;
 			
 			//check the session ids
 			$session_ids = get_transient("fakesessid_" . $current_user->user_login);			
@@ -182,7 +209,7 @@ class WP_Bouncer {
 			
 			//0 means do nothing
 			if(empty($num_allowed))
-				return;
+				return false;
 						
 			//if we have more than the num allowed, remove some from the top
 			while(count($session_ids) > $num_allowed) {				
@@ -206,11 +233,18 @@ class WP_Bouncer {
 						wp_logout();
 						
 						//redirect
-						$this->flag_redirect();
+						if ( $redirect ) {
+							$this->flag_redirect();
+						}
 					}
+					
+					return true;
 				}
 			}
 		}
+		
+		// if we get here the login is not a dupe
+		return false;
 	}
 
 	/**
@@ -318,8 +352,22 @@ class WP_Bouncer {
 	}
 	
 	/**
-	 * 
+	 * Check login_flag via heartbeat API
 	 */
+	public function ajax_check() {
+		if( $this->login_flag( false ) ) {
+			$r = array();
+			$r['redirect_url'] = esc_url( $this->get_redirect_url() );
+			$r['flagged'] = true;
+			
+			echo json_encode( $r );
+		} else {
+			$r = array();
+			$r['flagged'] = false;
+		}
+		
+		exit;
+	}
 	
 /// end class
 }
