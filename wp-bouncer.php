@@ -24,15 +24,7 @@ Author URI: http://andrewnorcross.com
 */
 
 // Start up the engine
-class WP_Bouncer
-{
-	/*
-		Settings. These are set in constructor for now.	
-		We will eventually replace these via a settings page in the dashboard.
-	*/
-	public $redirect;
-
-
+class WP_Bouncer {
 	/**
 	 * This is our constructor
 	 *
@@ -52,11 +44,13 @@ class WP_Bouncer
 		//add check for resetting sessions
 		add_action('admin_init', array($this, 'reset_session'));
 		add_action('admin_notices', array($this, 'admin_notices'));
-		
-		function set_wp_bouncer_redirect_url() {
-		    $redirect_url = apply_filters('wp_bouncer_redirect_url', esc_url_raw( plugin_dir_url( __FILE__ ) . 'login-warning.php' ));
-		}
-		add_action('after_setup_theme', 'set_wp_bouncer_redirect_url');
+	}
+	
+	/**
+	 * Make sure to set the redirect url after theme is setup
+	 */
+	public function get_redirect_url() {
+		return apply_filters('wp_bouncer_redirect_url', esc_url_raw( plugin_dir_url( __FILE__ ) . 'login-warning.php' ));
 	}
 	
 	/**
@@ -64,9 +58,7 @@ class WP_Bouncer
 	 *
 	 * @return WP_Bouncer
 	 */
-
 	private function browser_data() {
-
 		// grab base user agent and parse out
 	    $u_agent	= $_SERVER['HTTP_USER_AGENT'];
 	    $bname		= 'Unknown';
@@ -158,12 +150,9 @@ class WP_Bouncer
 	 *
 	 * @return WP_Bouncer
 	 */
-
-	public function flag_redirect() {
-		
-		wp_redirect( $redirect_url );
+	public function flag_redirect() {		
+		wp_redirect( $this->get_redirect_url() );
 		exit();
-
 	}
 
 	/**
@@ -173,9 +162,7 @@ class WP_Bouncer
 	 */
 
 	public function login_flag() {
-
-		if(is_user_logged_in())
-		{	
+		if(is_user_logged_in()) {	
 			global $current_user;
 			
 			//ignore admins
@@ -200,8 +187,7 @@ class WP_Bouncer
 				return;
 						
 			//if we have more than the num allowed, remove some from the top
-			while(count($session_ids) > $num_allowed)
-			{				
+			while(count($session_ids) > $num_allowed) {				
 				unset($session_ids[0]);	//remove oldest id
 				$session_ids = array_values($session_ids);	//fix array keys								
 			}
@@ -212,15 +198,12 @@ class WP_Bouncer
 			//save session ids in case we trimmed them
 			set_transient("fakesessid_" . $current_user->user_login, $session_ids, apply_filters('wp_bouncer_session_length', 3600*24*30, $current_user->ID));
 						
-			if(!empty($session_ids))
-			{			
-				if(empty($_COOKIE['fakesessid']) || !in_array($_COOKIE['fakesessid'], $session_ids))
-				{
+			if(!empty($session_ids)) {			
+				if(empty($_COOKIE['fakesessid']) || !in_array($_COOKIE['fakesessid'], $session_ids)) {
 					//hook in case we want to do something different
 					$logout = apply_filters('wp_bouncer_login_flag', true, $session_ids);
 					
-					if($logout)
-					{					
+					if($logout) {
 						//log user out
 						wp_logout();
 						
@@ -237,7 +220,6 @@ class WP_Bouncer
 	 *
 	 * @return WP_Bouncer
 	 */
-
 	public function login_track($user_login) {		
 		// get browser data from current login
 		$browser	= $this->browser_data();
@@ -266,7 +248,6 @@ class WP_Bouncer
 	 *
 	 * @return WP_Bouncer
 	 */
-
 	public function textdomain() {
 
 		load_plugin_textdomain( 'wp-bouncer', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
@@ -297,8 +278,7 @@ class WP_Bouncer
 	 * Reset sessions. Runs on admin init. Checks for wpbreset and nonce and resets sessions for that user.
 	 *	 
 	 */	
-	public function reset_session()
-	{
+	public function reset_session() {
 		if(!empty($_REQUEST['wpbreset']))
 		{
 			global $wpb_msg, $wpb_msgt;
