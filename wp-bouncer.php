@@ -31,7 +31,6 @@ class WP_Bouncer {
 	 * @return WP_Bouncer
 	 */
 	public function __construct() {
-
 		//track logins
 		add_action('wp_login', array($this, 'login_track'));
 		
@@ -160,7 +159,6 @@ class WP_Bouncer {
 	 *
 	 * @return WP_Bouncer
 	 */
-
 	public function login_flag() {
 		if(is_user_logged_in()) {	
 			global $current_user;
@@ -249,7 +247,6 @@ class WP_Bouncer {
 	 * @return WP_Bouncer
 	 */
 	public function textdomain() {
-
 		load_plugin_textdomain( 'wp-bouncer', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
@@ -260,8 +257,7 @@ class WP_Bouncer {
 	 */	
 	public function user_row_actions($actions, $user) {	
 		$cap = apply_filters('wp_bouncer_reset_sessions_cap', 'edit_users');
-		if(current_user_can($cap))
-		{
+		if(current_user_can($cap)) {
 			$url = admin_url("users.php?wpbreset=" . $user->ID);
 			if(!empty($_REQUEST['s']))
 				$url .= "&s=" . esc_attr($_REQUEST['s']);
@@ -276,11 +272,9 @@ class WP_Bouncer {
 	
 	/**
 	 * Reset sessions. Runs on admin init. Checks for wpbreset and nonce and resets sessions for that user.
-	 *	 
 	 */	
 	public function reset_session() {
-		if(!empty($_REQUEST['wpbreset']))
-		{
+		if(!empty($_REQUEST['wpbreset'])) {
 			global $wpb_msg, $wpb_msgt;
 			
 			//get user id
@@ -288,27 +282,21 @@ class WP_Bouncer {
 			$user = get_userdata($user_id);
 						
 			//no user?
-			if(empty($user))
-			{
+			if(empty($user)) {
 				//user not found error
 				$wpb_msg = 'Could not reset sessions. User not found.';
 				$wpb_msgt = 'error';
-			}			
-			else
-			{				
+			} else {				
 				//check nonce
 				check_admin_referer( 'wpbreset_'.$user_id);
 				
 				//check caps
 				$cap = apply_filters('wp_bouncer_reset_sessions_cap', 'edit_users');
-				if(!current_user_can($cap))
-				{
+				if(!current_user_can($cap)) {
 					//show error message
 					$wpb_msg = 'You do not have permission to reset user sessions.';
 					$wpb_msgt = 'error';
-				}
-				else
-				{
+				} else {
 					//all good, delete this user's sessions
 					delete_transient('fakesessid_'. $user->user_login);				
 					
