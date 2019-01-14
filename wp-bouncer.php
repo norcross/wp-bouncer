@@ -355,16 +355,17 @@ class WP_Bouncer {
 	 * Check login_flag via heartbeat API
 	 */
 	public function ajax_check() {
-		if( $this->login_flag( false ) ) {
-			$r = array();
+		$r = array();
+		
+		if( $this->login_flag( false ) ) {	
 			$r['redirect_url'] = esc_url( $this->get_redirect_url() );
 			$r['flagged'] = true;
-			
-			echo json_encode( $r );
 		} else {
-			$r = array();
+			$r['redirect_url'] = '';
 			$r['flagged'] = false;
 		}
+		
+		echo json_encode( $r );
 		
 		exit;
 	}
