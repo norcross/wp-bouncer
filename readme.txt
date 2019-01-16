@@ -2,9 +2,9 @@
 Contributors: strangerstudios, norcross
 Website Link: https://www.paidmembershipspro.com/add-ons/wp-bouncer/
 Tags: login, security, member, members, membership, memberships, susbcription, subscriptions
-Requires at least: 3.0
-Tested up to: 4.8
-Stable tag: 1.3.1
+Requires at least: 4.0
+Tested up to: 5.0.3
+Stable tag: 1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -69,6 +69,10 @@ We've found that using a 2-Factor-Authentication scheme on your site is a good w
 1. Warning message shown when a user is bounced.
 
 == Changelog ==
+= 1.4 - 2019-01-16 =
+* BUG FIX: Fixed issue with how things were stored in transients. (Thanks, zackdn on GitHub)
+* FEATURE: Added JavaScript to bounce users in case the PHP bouncer is not running (e.g. when using page caching). To enable this, add `define( 'WP_BOUNCER_HEARTBEAT_CHECK', true );` to your wp-config.php (without the backticks).
+
 = 1.3.1 =
 * Fixed a typo.
 * Tested up to WP 4.8
