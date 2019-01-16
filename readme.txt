@@ -18,6 +18,7 @@ WP Bouncer restricts the number of simultaneous logins for your WordPress users.
 * The plugin stores a random `FAKESESSID` for each user when they log in.
 * If a user is logged in, on each page load (init hook), WP Bouncer checks if the `FAKESESSID` stored in the user’s cookies is the same as the last login stored in a transient (`fakesessid_user_login`).
 * If the two values do no match, WP Bouncer logs the user out and redirects them to a warning message.
+* If the WP_BOUNCER_HEARTBEAT_CHECK is defined to true, JavaScript will be loaded to bounce users when a new user logs in with the same login. This is useful for sites with page caching.
 
 Admin accounts (specifically users with the "manage_options" capability) are excluded from bounces.
 
@@ -57,7 +58,9 @@ This section describes how to install the plugin and get it working.
 
 1. Upload `wp-bouncer` to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. That's it! There are no settings for this plugin.
+3. To enable JavaScript checks, add the following code to your wp-config.php:
+
+define( 'WP_BOUNCER_HEARTBEAT_CHECK', true );
 
 == Frequently Asked Questions ==
 
