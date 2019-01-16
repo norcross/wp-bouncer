@@ -22,7 +22,7 @@ WP Bouncer restricts the number of simultaneous logins for your WordPress users.
 
 Admin accounts (specifically users with the "manage_options" capability) are excluded from bounces.
 
-= Allow a Specific Number of Active Sessions
+= Allow a Specific Number of Active Sessions =
 By default, WP Bouncer only allows one session per user. But, you can use this plugin to offer bulk memberships to corporate, education, or other group-type customers via a shared login.
 
 Use the `wp_bouncer_number_simultaneous_logins` filter to allow a defined number of active "sessions".
