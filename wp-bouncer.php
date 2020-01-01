@@ -3,7 +3,7 @@
 Plugin Name: WP Bouncer
 Plugin URI: https://www.paidmembershipspro.com/add-ons/wp-bouncer/
 Description: Only allow one device to be logged into WordPress for each user.
-Version: 1.4
+Version: 1.4.1
 Author: strangerstudios, Andrew Norcross
 Author URI: https://www.paidmembershipspro.com
 
@@ -37,7 +37,7 @@ class WP_Bouncer {
 		add_action( 'wp_login', array( $this, 'login_track' ) );
 		
 		//bounce logins
-		add_action( 'init', array( $this, 'login_flag' ) );
+		add_action( 'init', array( $this, 'login_flag' ), 10, 0 );
 			
 		//add action links to reset sessions
 		add_filter( 'user_row_actions', array($this, 'user_row_actions' ), 10, 2 );
