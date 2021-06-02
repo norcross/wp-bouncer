@@ -3,8 +3,8 @@ Contributors: strangerstudios, norcross
 Website Link: https://www.paidmembershipspro.com/add-ons/wp-bouncer/
 Tags: login, security, member, members, membership, memberships, susbcription, subscriptions
 Requires at least: 4.0
-Tested up to: 5.3
-Stable tag: 1.4.1
+Tested up to: 5.7.2
+Stable tag: 1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,6 +72,10 @@ We've found that using a 2-Factor-Authentication scheme on your site is a good w
 1. Warning message shown when a user is bounced.
 
 == Changelog ==
+= 1.5 - 2021-06-02 =
+* ENHANCEMENT: Removed the login-warning.php file. Instead, we redirect to the wp-login.php page and show a message.
+* BUG FIX: Adjusted URLs to be https and adjusted meta tags to be be noindex/nofollow.
+
 = 1.4.1 - 2020-01-01 =
 * BUG FIX: Fixed issue where users were not redirected to the warning page when logged out.
 

@@ -3,7 +3,7 @@
 Plugin Name: WP Bouncer
 Plugin URI: https://www.paidmembershipspro.com/add-ons/wp-bouncer/
 Description: Only allow one device to be logged into WordPress for each user.
-Version: 1.4.1
+Version: 1.5
 Author: strangerstudios, Andrew Norcross
 Author URI: https://www.paidmembershipspro.com
 
@@ -23,7 +23,7 @@ Author URI: https://www.paidmembershipspro.com
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'WP_BOUCNER_VERSION', '1.4' );
+define( 'WP_BOUCNER_VERSION', '1.5' );
 
 // Start up the engine
 class WP_Bouncer {
@@ -51,6 +51,9 @@ class WP_Bouncer {
 		add_action( 'wp_ajax_nopriv_wp_bouncer_check', array( $this, 'ajax_check' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
+
+		// Show error message on login.
+		add_action( 'login_head', array( $this, 'user_bounced_error' ) );
 	}
 	
 	public function wp_enqueue_scripts() {
@@ -76,7 +79,20 @@ class WP_Bouncer {
 	 * Get the URL to redirect dupe logins to
 	 */
 	public function get_redirect_url() {
-		return apply_filters('wp_bouncer_redirect_url', esc_url_raw( plugin_dir_url( __FILE__ ) . 'login-warning.php' ));
+		return apply_filters('wp_bouncer_redirect_url', esc_url( add_query_arg( 'bounced', '1', wp_login_url() ) ) );
+	}
+
+	/**
+	 * Show error message on login page if bounced.
+	 * @since 1.4.2
+	 */
+	public function user_bounced_error() {
+		global $error;
+
+		if( isset( $_REQUEST['bounced'] ) && '1' == $_REQUEST['bounced'] ) {
+			$error  = esc_html__( 'There was an issue with your log in. Your user account has logged in recently from a different location.', 'wp-bouncer' );
+		}
+  
 	}
 	
 	/**
