@@ -84,7 +84,7 @@ class WP_Bouncer {
 
 	/**
 	 * Show error message on login page if bounced.
-	 * @since 1.4.2
+	 * @since 1.5
 	 */
 	public function user_bounced_error() {
 		global $error;
