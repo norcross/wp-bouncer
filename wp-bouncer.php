@@ -23,7 +23,7 @@ Author URI: https://www.paidmembershipspro.com
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'WP_BOUCNER_VERSION', '1.5.1' );
+define( 'WP_BOUNCER_VERSION', '1.5.1' );
 
 // Start up the engine
 class WP_Bouncer {
@@ -65,7 +65,7 @@ class WP_Bouncer {
 				'wp_bouncer', 
 				plugins_url( 'js/wp-bouncer.js', __FILE__ ),
 				array( 'jquery' ),
-				WP_BOUCNER_VERSION
+				WP_BOUNCER_VERSION
 			);
 			wp_localize_script(
 				'wp_bouncer',
