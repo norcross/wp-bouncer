@@ -1,0 +1,6 @@
+# Items to ignore when downloading a zip
+wp-bouncer-banner.jpg export-ignore
+.gitattributes export-ignore
+.github export-ignore
+.wordpress-org export-ignore
+README.md export-ignore

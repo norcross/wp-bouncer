@@ -2,8 +2,8 @@
 /*
 Plugin Name: WP Bouncer
 Plugin URI: https://www.paidmembershipspro.com/add-ons/wp-bouncer/
-Description: Only allow one device to be logged into WordPress for each user.
-Version: 1.5
+Description: Deter members from sharing login credentials: restrict simultaneous logins for the same user.
+Version: 1.5.1
 Author: strangerstudios, Andrew Norcross
 Author URI: https://www.paidmembershipspro.com
 
@@ -23,7 +23,7 @@ Author URI: https://www.paidmembershipspro.com
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'WP_BOUCNER_VERSION', '1.5' );
+define( 'WP_BOUCNER_VERSION', '1.5.1' );
 
 // Start up the engine
 class WP_Bouncer {
