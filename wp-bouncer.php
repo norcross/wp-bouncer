@@ -1,27 +1,14 @@
 <?php
-/*
-Plugin Name: WP Bouncer
-Plugin URI: https://www.paidmembershipspro.com/add-ons/wp-bouncer/
-Description: Deter members from sharing login credentials: restrict simultaneous logins for the same user.
-Version: 1.5.1
-Author: strangerstudios, Andrew Norcross
-Author URI: https://www.paidmembershipspro.com
-
-    Copyright 2012 Andrew Norcross, Stranger Studios
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License, version 2, as
-    published by the Free Software Foundation.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+/**
+ * Plugin Name: WP Bouncer - Limit Simultaneous Logins
+ * Plugin URI: https://www.paidmembershipspro.com/add-ons/wp-bouncer/
+ * Description: Deter members from sharing login credentials: restrict simultaneous logins for the same user.
+ * Version: 1.5.1
+ * Author: Stranger Studios
+ * Author URI: https://www.strangerstudios.com
+ * Text Domain: wp-bouncer
+ * Domain Path: /languages
+ */
 
 define( 'WP_BOUNCER_VERSION', '1.5.1' );
 
@@ -33,19 +20,22 @@ class WP_Bouncer {
 	 * @return WP_Bouncer
 	 */
 	public function __construct() {
+		//support translations
+		add_action( 'plugins_loaded', array( $this, 'textdomain' ) );
+
 		//track logins
 		add_action( 'wp_login', array( $this, 'login_track' ) );
-		
+
 		//bounce logins
 		add_action( 'init', array( $this, 'login_flag' ), 10, 0 );
-			
+
 		//add action links to reset sessions
 		add_filter( 'user_row_actions', array($this, 'user_row_actions' ), 10, 2 );
 		
 		//add check for resetting sessions
 		add_action( 'admin_init', array( $this, 'reset_session' ) );
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
-		
+
 		//JS checks
 		add_action( 'wp_ajax_wp_bouncer_check', array( $this, 'ajax_check' ) );
 		add_action( 'wp_ajax_nopriv_wp_bouncer_check', array( $this, 'ajax_check' ) );
@@ -70,11 +60,21 @@ class WP_Bouncer {
 			wp_localize_script(
 				'wp_bouncer',
 				'wp_bouncer',
-				array('ajax_url' => admin_url( 'admin-ajax.php' ) )
+				array(
+					'ajax_url' => admin_url( 'admin-ajax.php' ),
+					'wp_bouncer_ajax_timeout' => apply_filters( 'wp_bouncer_ajax_timeout', 5000 )
+				)
 			);
 		}
 	}
-	
+
+	/**
+	 * Support translations and tie into GlotPress
+	 */
+	public function textdomain() {
+		load_plugin_textdomain( 'wp-bouncer', false, basename( dirname( __FILE__ ) ) . '/languages' );
+	}
+
 	/**
 	 * Get the URL to redirect dupe logins to
 	 */
@@ -289,15 +289,6 @@ class WP_Bouncer {
 		
 		//and save it in a cookie		
 		setcookie("fakesessid", $new_session_id, time()+3600*24*30, COOKIEPATH, COOKIE_DOMAIN, false);	
-	}
-
-	/**
-	 * load textdomain
-	 *
-	 * @return WP_Bouncer
-	 */
-	public function textdomain() {
-		load_plugin_textdomain( 'wp-bouncer', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
 	/**
