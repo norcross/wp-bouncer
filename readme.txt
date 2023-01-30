@@ -81,7 +81,10 @@ We've found that using a 2-Factor-Authentication scheme on your site is a good w
 == Changelog ==
 
 = 1.5.1 - 2023-01-30 =
+* ENHANCEMENT: Added filter `wp_bouncer_ajax_timeout` to adjust timeout (default 5000).
+* ENHANCEMENT: Added support for translations.
 * BUG FIX: Removed unused login warning file and screenshot from the SVN repository that is not used in this plugin.
+* BUG FIX: Fixed misspelled constant for plugin version and usage in JS file load.
 
 = 1.5 - 2021-06-02 =
 * ENHANCEMENT: Removed the login-warning.php file. Instead, we redirect to the wp-login.php page and show a message.
